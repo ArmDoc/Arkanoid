@@ -1,9 +1,12 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var width 	= canvas.width 	= 600;
-var height	= canvas.height 	= 600;
-var boxHeight	= 30;
+canvas.width 	= 600;
+canvas.height 	= 600;
+var width 	= canvas.width;
+var height	= canvas.height;
+
+var boxHeight = 30;
 
 var min = 3;
 var max = 8;
@@ -31,46 +34,16 @@ var ball	= {
 	dy : -1,
 }
 
-creatCubes();
-drow();
+createCubes();
+draw();
 
-document.addEventListener('keydown', function(e) {
-	if(e.keyCode === 37) {
-		paddle.leftPressed = true;
-	}
-
-	if(e.keyCode === 39) {
-		paddle.rightPressed = true;
-	}
-
-	if (e.keyCode === 32) {
-		if(setInterval (timer) <= 1) {
-			timer = setInterval(function() {
-				drow ();
-			},1);
-		}
-	}
-})
-
-document.addEventListener('keyup', function(e) {
-	if(e.keyCode === 37) {
-		paddle.rightPressed = false;
-		paddle.leftPressed = false;
-	}
-	if(e.keyCode === 39) {
-		paddle.rightPressed = false;
-		paddle.leftPressed = false;
-	}
-})
-
-function creatCubes() {
+function createCubes() {
 	var row = getRandomNumber(min,max);
 	for (var i = 0; i < row; ++i) {
 		var column = getRandomNumber(min,max);
 		for (var j = 0; j < column;++j) {
 			var color = "#" + Math.floor(Math.random()*16777215).toString(16);
 			var w = width / column;
-
 			boxes.push ({
 				c: color,
 				x: j * w,
@@ -82,7 +55,32 @@ function creatCubes() {
 	}
 }
 
-function drowBox() {
+function draw() {
+	clear();
+	drawBall();
+	drawPaddle();
+	drawBox();
+}
+
+function clear() {
+	canvas.width |= 0
+}
+
+function drawBall() {
+	ctx.beginPath();
+	ctx.fillStyle = 'red';
+	ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+	ctx.fill();
+}
+
+function drawPaddle() {
+	ctx.beginPath();
+	ctx.fillStyle = 'green';
+	ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+	ctx.fill();
+}
+
+function drawBox() {
 	for(var i = 0; i <= boxes.length-1; ++i) {
 		ctx.beginPath();
 		ctx.fillStyle = boxes[i].c
@@ -91,26 +89,9 @@ function drowBox() {
 	}
 }
 
-function clear() {
-	canvas.width |= 0
-}
-
-function drowBall() {
-	ctx.beginPath();
-	ctx.fillStyle = 'red';
-	ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-	ctx.fill();
-}
-
-function drowPaddle() {
-	ctx.beginPath();
-	ctx.fillStyle = 'green';
-	ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
-	ctx.fill();
-}
-
-function getRandomNumber(min, max) {
-	return(Math.round(Math.random() * (max - min) + min))
+function clearTimer() {
+	clearInterval(timer);
+	timer = null;
 }
 
 function calculations() {
@@ -138,7 +119,7 @@ function calculations() {
 	}
 
 	if(ball.y + ball.r >= height) {
-		clearInterval(timer);
+		clearTimer();
 		alert('Game Over');
 	}
 
@@ -149,25 +130,80 @@ function calculations() {
 	}
 
 	boxes.forEach(function (box, i ) {
-		if(ball.x >= box.x && 
-			ball.x <= box.x + box.w &&
-			ball.y >= box.y &&
-			ball.y <= box.y + box.h) {
+		if(ball.x +ball.r>= box.x && 
+			ball.x-ball.r <= box.x + box.w &&
+			ball.y+ball.r >= box.y &&
+			ball.y-ball.r <= box.y + box.h) {
 			boxes.splice(i, 1);
 			ball.dy *= -1;
 		}
 	})
 
-	if(boxes.length <= 0) {
+	if(boxes.length == 0) {
 		clearInterval(timer);
-		alert("Congratulations You won")
+		alert("Bravo you won")
 	}
 }
 
-function drow() {
-	clear();
-	drowBall();
-	drowPaddle();
-	drowBox();
-	calculations();
+document.addEventListener('keydown', function(e) {
+	if(e.keyCode === 37) {
+		paddle.leftPressed = true;
+	}
+
+	if(e.keyCode === 39) {
+		paddle.rightPressed = true;
+	}
+
+	if (e.keyCode === 32) {
+		if(timer == null) {
+			timer = setInterval(function() {
+				draw ();
+				calculations();
+			},1);
+		}
+	}
+
+	if(e.keyCode === 82) {
+		if(boxes.length == 0 || ball.y + ball.r >= height){
+			
+			boxes	= [];
+
+			paddle = {
+				w: 150,
+				h: 20,
+				x: (width - 150) / 2,
+				y: height - (20+20),
+				dx: 1,
+
+				leftPressed: false,
+				rightPressed: false,
+			}
+
+			ball	= {
+				r : 15,
+				x : width / 2,
+				y : height - 15 - 40 ,
+				dx : Math.random() < 0.5 ? -1 : 1,
+				dy : -1,
+			}
+
+			createCubes();
+			draw();
+		}
+	}
+})
+
+document.addEventListener('keyup', function(e) {
+	if(e.keyCode === 37) {
+		paddle.rightPressed = false;
+		paddle.leftPressed = false;
+	}
+	if(e.keyCode === 39) {
+		paddle.rightPressed = false;
+		paddle.leftPressed = false;
+	}
+})
+
+function getRandomNumber(min, max) {
+	return(Math.round(Math.random() * (max - min) + min))
 }
