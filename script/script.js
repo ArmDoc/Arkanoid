@@ -191,6 +191,7 @@ document.addEventListener('keydown', function(e) {
 
 			createCubes();
 			draw();
+			calculations();
 		}
 	}
 })
