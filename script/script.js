@@ -27,9 +27,9 @@ var paddle = {
 }
 
 var ball	= {
-	r : 15,
+	r : 16,
 	x : width / 2,
-	y : height - 15 - 40 ,
+	y : height - 16 - 40 ,
 	dx : Math.random() < 0.5 ? -1 : 1,
 	dy : -1,
 }
@@ -95,9 +95,6 @@ function clearTimer() {
 }
 
 function calculations() {
-	ball.x += ball.dx;
-	ball.y += ball.dy;
-
 	if(paddle.leftPressed) {
 		if(paddle.x - paddle.dx >= 0) {
 			paddle.x -= paddle.dx;
@@ -123,11 +120,16 @@ function calculations() {
 		alert('Game Over');
 	}
 
-	if(ball.x >= paddle.x + ball.r && 
-		ball.x <= paddle.x + paddle.w - ball.r &&
-		ball.y + ball.r >= paddle.y) {
-		ball.dy *= -1;
+	if(ball.dy == 1 &&
+		ball.x + ball.dx + ball.r >= paddle.x + ball.r &&
+		ball.x + ball.dx - ball.r  <= paddle.x + paddle.w - ball.r) {
+		if(ball.y + ball.dy >= paddle.y - ball.r) {
+			ball.dy *= -1
+		}
 	}
+
+	ball.x += ball.dx;
+	ball.y += ball.dy;
 
 	boxes.forEach(function (box, i ) {
 		if(ball.x +ball.r>= box.x && 
